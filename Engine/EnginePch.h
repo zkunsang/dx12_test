@@ -58,6 +58,15 @@ struct WindowInfo
 	bool windowed; // Ã¢¸ðµå
 };
 
+struct Vertex
+{
+	Vec3 pos; // x, y, z
+	Vec4 color; // rgba
+};
+
 extern unique_ptr<class Engine> GEngine;
 
+#define DEVICE GEngine->GetDevice()->GetDevice()
+#define CMD_LIST GEngine->GetCmdQueue()->GetCmdList()
+#define ROOT_SIGNATURE GEngine->GetRootSignature()->GetSignature()
 void HelloEngine();
