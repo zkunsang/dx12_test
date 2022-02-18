@@ -35,6 +35,7 @@ void ConstantBuffer::Init(uint32 size, uint32 count)
 	_elementCount = count;
 
 	CreateBuffer();
+	CreateView();
 }
 
 void ConstantBuffer::CreateBuffer()
