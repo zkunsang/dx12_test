@@ -14,11 +14,14 @@ void Engine::Init(const WindowInfo& info)
 	_cmdQueue = make_shared<CommandQueue>();
 	_swapChain = make_shared<SwapChain>();
 	_rootSignature = make_shared<RootSignature>();
+	_cb = make_shared<ConstantBuffer>();
 
 	_device->Init();
 	_cmdQueue->Init(_device->GetDevice(), _swapChain);
 	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
 	_rootSignature->Init(_device->GetDevice());
+	_cb->Init(sizeof(Transform), 256);
+	// 이게 너무 늘어나면 드로우콜이 늘어남
 }
 
 void Engine::Render()

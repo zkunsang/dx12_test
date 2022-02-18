@@ -6,6 +6,7 @@
 #include "RootSignature.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "ConstantBuffer.h"
 
 class Engine
 {
@@ -20,6 +21,7 @@ public:
 	shared_ptr<CommandQueue> GetCmdQueue() { return _cmdQueue; }	// 커맨드 패턴, 하나하나 보내는게 아니라 뭉쳐 보내기
 	shared_ptr<SwapChain> GetSwapChain() { return _swapChain; }		// 더블 버퍼링
 	shared_ptr<RootSignature> GetRootSignature() { return _rootSignature; }
+	shared_ptr<ConstantBuffer> GetCB() { return _cb; }
 
 public:
 	void RenderBegin();
@@ -35,5 +37,6 @@ private:
 	shared_ptr<CommandQueue> _cmdQueue;	// 커맨드 패턴, 하나하나 보내는게 아니라 뭉쳐 보내기
 	shared_ptr<SwapChain> _swapChain;		// 더블 버퍼링
 	shared_ptr<RootSignature> _rootSignature;
+	shared_ptr<ConstantBuffer> _cb;
 };
 
