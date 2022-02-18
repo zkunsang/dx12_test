@@ -56,20 +56,49 @@ void ConstantBuffer::CreateBuffer()
 	// the resource while it is in use by the GPU (so we must use synchronization techniques).
 }
 
+void ConstantBuffer::CreateView()
+{
+	D3D12_DESCRIPTOR_HEAP_DESC cbvDesc = {};
+	cbvDesc.NumDescriptors = _elementCount;
+	cbvDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	cbvDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	DEVICE->CreateDescriptorHeap(&cbvDesc, IID_PPV_ARGS(&_cbvHeap));
+
+	_cpuHandleBegin = _cbvHeap->GetCPUDescriptorHandleForHeapStart();
+	_handleIncrementSize = DEVICE->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+	for (uint32 i = 0; i < _elementCount; ++i)
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE cbvHandle = GetCpuHandle(i);
+
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = _cbvBuffer->GetGPUVirtualAddress() + static_cast<uint64>(_elementSize) * i;
+		cbvDesc.SizeInBytes = _elementSize;   // CB size is required to be 256-byte aligned.
+
+		DEVICE->CreateConstantBufferView(&cbvDesc, cbvHandle);
+	}
+}
+
 void ConstantBuffer::Clear()
 {
 	_currentIndex = 0;
 }
 
-void ConstantBuffer::PushData(int32 rootParamIndex, void* buffer, uint32 size)
+D3D12_CPU_DESCRIPTOR_HANDLE ConstantBuffer::PushData(int32 rootParamIndex, void* buffer, uint32 size)
 {
 	assert(_currentIndex < _elementSize);
 
 	::memcpy(&_mappedBuffer[_currentIndex * _elementSize], buffer, size);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = GetCpuHandle(_currentIndex);
+	/*
 	D3D12_GPU_VIRTUAL_ADDRESS address = GetGpuVirtualAddress(_currentIndex);
 	CMD_LIST->SetGraphicsRootConstantBufferView(rootParamIndex, address);
+	*/
+
 	_currentIndex++;
+
+	return cpuHandle;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGpuVirtualAddress(uint32 index)
@@ -78,3 +107,20 @@ D3D12_GPU_VIRTUAL_ADDRESS ConstantBuffer::GetGpuVirtualAddress(uint32 index)
 	objCBAddress += index * _elementSize;
 	return objCBAddress;
 }
+
+D3D12_CPU_DESCRIPTOR_HANDLE ConstantBuffer::GetCpuHandle(uint32 index)
+{
+	return CD3DX12_CPU_DESCRIPTOR_HANDLE(_cpuHandleBegin, index * _handleIncrementSize);
+}
+
+// CB
+// CBV Constant Buffer View (Desc.Heap) - CB와 매칭 (즉시)
+// Shader Visible (Desc.Heap) - 레지스터랑 매칭 
+// [view0, view1, view2, view3][view0, view1, view2, view3][view0, view1, view2, view3]이런식으로 예약
+// b0 , b1 , b2 위 두개 는 CmdQueue로 처리 되서 처리 시간이 있다.
+// DescHeap을 두개
+
+// SetDescriptorHeap은 엄청나게 느려서 막 남발하면 안됨
+// [view0, view1, view2, view3][view0, view1, view2, view3][view0, view1, view2, view3]
+// 이렇게 4개씩 있는것을 10개 만드는 것이 아니라
+// 40개를 만들어서 나누어 관리
