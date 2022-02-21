@@ -47,7 +47,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     GWindowInfo.width = 800;
-    GWindowInfo.height = 600;
+    GWindowInfo.height = 600; // window사이즈에 맞게 그려진다.
     GWindowInfo.windowed = true;
 
     // 수명이 되면 알아서 삭제됨

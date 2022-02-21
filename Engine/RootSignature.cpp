@@ -4,8 +4,8 @@
 
 void RootSignature::Init()
 {
-	CreateRootSignature();
 	CreateSamplerDesc();
+	CreateRootSignature();
 }
 
 void RootSignature::CreateSamplerDesc()
