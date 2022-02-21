@@ -6,6 +6,7 @@
 #include "RootSignature.h"
 #include "Shader.h"
 #include "Mesh.h"
+#include "Texture.h"
 #include "ConstantBuffer.h"
 #include "TableDescriptorHeap.h"
 
