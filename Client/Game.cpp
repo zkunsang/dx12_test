@@ -67,9 +67,12 @@ void Game::Update()
 
 	shader->Update();
 
+	
+	// 3번째 인자값으로 컨트롤이 된다?
+	// 사실 잘 모르겠음
 	{
 		Transform t;
-		t.offset = Vec4(0.f, 0.f, 0.f, 0.f);
+		t.offset = Vec4(0.25f, 0.25f, 0.2f, 0.f);
 		mesh->SetTransform(t);
 		mesh->SetTexture(texture);
 		mesh->Render();
@@ -77,7 +80,7 @@ void Game::Update()
 
 	{
 		Transform t;
-		t.offset = Vec4(0.f, 0.25f, 0.25f, 0.f);
+		t.offset = Vec4(0.f, 0.f, 0.3f, 0.f);
 		mesh->SetTransform(t);
 		mesh->SetTexture(texture);
 		mesh->Render();
