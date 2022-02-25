@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Engine.h"
+#include "Material.h"
 
 void Engine::Init(const WindowInfo& info)
 {
@@ -14,18 +15,26 @@ void Engine::Init(const WindowInfo& info)
 	_cmdQueue = make_shared<CommandQueue>();
 	_swapChain = make_shared<SwapChain>();
 	_rootSignature = make_shared<RootSignature>();
-	_cb = make_shared<ConstantBuffer>();
 	_tableDescHeap = make_shared<TableDescriptorHeap>();
 	_depthStencilBuffer = make_shared<DepthStencilBuffer>();
+
+	_input = make_shared<Input>();
+	_timer = make_shared<Timer>();
 
 	_device->Init();
 	_cmdQueue->Init(_device->GetDevice(), _swapChain);
 	_swapChain->Init(info, _device->GetDevice(), _device->GetDXGI(), _cmdQueue->GetCmdQueue());
 	_rootSignature->Init();
-	_cb->Init(sizeof(Transform), 256);
+
 	_tableDescHeap->Init(256);
 	_depthStencilBuffer->Init(_window);
 	// 이게 너무 늘어나면 드로우콜이 늘어남
+
+	_input->Init(info.hwnd);
+	_timer->Init();
+
+	CreateConstantBuffer(CBV_REGISTER::b0, sizeof(Transform), 256);
+	CreateConstantBuffer(CBV_REGISTER::b1, sizeof(MaterialParams), 256);
 
 	ResizeWindow(info.width, info.height);
 }
@@ -47,6 +56,34 @@ void Engine::RenderBegin()
 void Engine::RenderEnd()
 {
 	_cmdQueue->RenderEnd();
+}
+
+void Engine::Update()
+{
+	_input->Update();
+	_timer->Update();
+
+	ShowFps();
+}
+
+void Engine::ShowFps()
+{
+	uint32 fps = _timer->GetFps();
+
+	WCHAR text[100] = L"";
+	::wsprintf(text, L"FPS: %d", fps);
+
+	::SetWindowTextW(_window.hwnd, text);
+}
+
+void Engine::CreateConstantBuffer(CBV_REGISTER reg, uint32 bufferSize, uint32 count)
+{
+	uint8 typeInt = static_cast<uint8>(reg);
+	assert(_constantBuffers.size() == typeInt);
+
+	shared_ptr<ConstantBuffer> buffer = make_shared<ConstantBuffer>();
+	buffer->Init(reg, bufferSize, count);
+	_constantBuffers.push_back(buffer);
 }
 
 void Engine::ResizeWindow(int32 width, int32 height)

@@ -7,17 +7,36 @@
 // root테이블이 정해진 사이즈가 있어서 
 // descriptor를 따로 만들어서 관리
 // root cbv
+
+// 무체가 위치할 공간
 cbuffer TEST_B0: register(b0)
 {
     float4 offset0;
 }
 
-cbuffer TEST_B1 : register(b1)
+// 메터리얼 외에
+// 일단 크게 크게 사용
+cbuffer MATERIAL_PARAMS : register(b1)
 {
-    float4 offset1;
+    int int_0;
+    int int_1;
+    int int_2;
+    int int_3;
+    int int_4;
+
+    float float_0;
+    float float_1;
+    float float_2;
+    float float_3;
+    float float_4;
 }
 
 Texture2D tex_0 : register(t0);
+Texture2D tex_1 : register(t1);
+Texture2D tex_2 : register(t2);
+Texture2D tex_3 : register(t3);
+Texture2D tex_4 : register(t4);
+
 SamplerState sam_0: register(s0);
 
 struct VS_IN
@@ -39,7 +58,10 @@ VS_OUT VS_Main(VS_IN input)
     VS_OUT output = (VS_OUT)0;
 
     output.pos = float4(input.pos, 1.f);
-    output.pos += offset0;
+    output.pos.x += float_0;
+    output.pos.y += float_1;
+    output.pos.z += float_2;
+    
     output.color = input.color;
     output.uv += input.uv;
 

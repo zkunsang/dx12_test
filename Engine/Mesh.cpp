@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Mesh.h"
 #include "Engine.h"
+#include "Material.h"
 
 void Mesh::Init(const vector<Vertex>& vertexBuffer, const vector<uint32>& indexBuffer)
 {
@@ -82,14 +83,10 @@ void Mesh::Render()
 	// GPU Ram에 버퍼를 여러개를 만든다
 	// 삼각형 2개 만들면 버퍼 2개
 
-	// 위에것은 위치 이동 값이고
-	// 아래것은 색상 이동 값이다.
-	{
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = GEngine->GetCB()->PushData(0, &_transform, sizeof(_transform));
-		GEngine->GetTableDescHeap()->SetCBV(handle, CBV_REGISTER::b0);
+	
+	CONST_BUFFER(CONSTANT_BUFFER_TYPE::STRANSFORM)->PushData(&_transform, sizeof(_transform));
+	_mat->Update();
 
-		GEngine->GetTableDescHeap()->SetSRV(_tex->GetCpuHandle(), SRV_REGISTER::t0);
-	}
 	/*{
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = GEngine->GetCB()->PushData(0, &_transform, sizeof(_transform));
 		GEngine->GetTableDescHeap()->SetCBV(handle, CBV_REGISTER::b1);
